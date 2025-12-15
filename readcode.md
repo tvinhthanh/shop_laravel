@@ -616,6 +616,37 @@ Tất cả migrations trong `database/migrations/`:
 - **card**: Thanh toán bằng thẻ tín dụng/ghi nợ
 - **cod**: Thanh toán khi nhận hàng
 
+## Inventory Management
+
+- Mỗi sản phẩm có field `stock` để theo dõi tồn kho.
+- Khi đặt hàng:
+  - Hệ thống kiểm tra từng sản phẩm trong giỏ, không cho đặt vượt quá số lượng còn lại.
+  - Sau khi tạo `Order` và `OrderItem`, `stock` của từng `Product` được trừ tương ứng.
+- Admin dashboard và danh sách sản phẩm hiển thị cảnh báo với sản phẩm có tồn kho thấp (ví dụ ≤ 5).
+
+## Coupons & Discounts
+
+- Bảng `coupons` lưu thông tin mã giảm giá:
+  - `code`, `type` (`percent` hoặc `fixed`), `value`
+  - `min_order_value`, `max_uses`, `used_count`
+  - `is_active`, `starts_at`, `expires_at`
+- Model `Coupon` cung cấp:
+  - `isValidForTotal($subtotal)`: kiểm tra điều kiện áp dụng
+  - `calculateDiscount($subtotal)`: tính số tiền giảm
+- Tại checkout:
+  - User nhập `coupon_code`, hệ thống validate và tính `discount_amount`.
+  - Bảng `orders` lưu `subtotal`, `discount_amount`, `coupon_code`, `shipping_fee`, `total_price`.
+
+## Customer & Order Management (bổ sung)
+
+- Người dùng:
+  - Trang “Đơn hàng của tôi” (`/my-orders`) hiển thị lịch sử đơn hàng.
+  - Trang chi tiết đơn (`/orders/{id}`) có timeline trạng thái: `pending → confirmed → producing → shipping → completed / cancelled`.
+- Admin:
+  - `CustomerController` hiển thị danh sách khách hàng (không bao gồm admin) với số đơn và tổng chi tiêu.
+  - Trang chi tiết khách hàng hiển thị lịch sử đơn hàng của khách.
+  - `Admin\OrderController` cho phép cập nhật trạng thái đơn với 6 trạng thái: `pending`, `confirmed`, `producing`, `shipping`, `completed`, `cancelled`.
+
 ## Color Scheme
 
 ### Primary Colors (Hồng Pastel)
